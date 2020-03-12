@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+
+  nginx-proxy:
+    image: jwilder/nginx-proxy:alpine
+    container_name: nginx-proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.tmpl:/app/nginx.tmpl
+      - ./data/conf.d:/etc/nginx/conf.d
+      - ./data/vhost.d:/etc/nginx/vhost.d
+      - ./data/html:/usr/share/nginx/html
+      - ./data/dhparam:/etc/nginx/dhparam
+      - ./data/certs:/etc/nginx/certs:ro
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    labels:
+      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy"
+    restart: always
+
+
+  letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    container_name: nginx-proxy-le
+    depends_on:
+      - nginx-proxy
+    volumes:
+      - ./data/vhost.d:/etc/nginx/vhost.d
+      - ./data/html:/usr/share/nginx/html
+      - ./data/dhparam:/etc/nginx/dhparam:ro
+      - ./data/certs:/etc/nginx/certs
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: always
+
+networks:
+  default:
+    external:
+      name: nginx-gateway
