@@ -4,7 +4,6 @@ services:
 
   nginx-proxy:
     image: jwilder/nginx-proxy:alpine
-    container_name: nginx-proxy
     ports:
       - "80:80"
       - "443:443"
@@ -23,7 +22,6 @@ services:
 
   letsencrypt:
     image: jrcs/letsencrypt-nginx-proxy-companion
-    container_name: nginx-proxy-le
     depends_on:
       - nginx-proxy
     volumes:
